@@ -1,6 +1,6 @@
 const GenerateQuiz = require('../../application/use-cases/GenerateQuiz');
 
-const generateQuiz = async (request, h) => {
+const index = async (request, h) => {
   const {questionRepository, sampleGenerator} = request.server.app.dependencies;
   const {topic, qty} = request.query;
   let quiz;
@@ -21,5 +21,5 @@ const generateQuiz = async (request, h) => {
 };
 
 module.exports = {
-  generateQuiz,
+  index,
 };

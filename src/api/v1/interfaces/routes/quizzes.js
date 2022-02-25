@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const {
-  generateQuiz,
+  index,
 } = require('../controllers/QuizController');
 
 const BASE_PATH = '/quizzes';
@@ -13,7 +13,7 @@ module.exports = (parentPath) => ({
       {
         method: 'GET',
         path: parentPath + BASE_PATH,
-        handler: generateQuiz,
+        handler: index,
         options: {
           validate: {
             query: Joi.object({
