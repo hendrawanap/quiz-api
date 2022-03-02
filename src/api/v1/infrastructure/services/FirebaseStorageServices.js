@@ -4,8 +4,11 @@ module.exports = class FirebaseStorageService {
     this.localStorage = localStorage;
   }
 
-  async upload(url, file) {
-    return new Error('not implemented');
+  async upload(url, fileStream) {
+    const localUrl = await this.localStorage.upload(url, fileStream);
+    const response = await this.storage.bucket().upload(localUrl, {destination: url});
+    this.localStorage.delete(url);
+    return response[1];
   }
 
   async getDownloadLink(url) {
@@ -23,6 +26,7 @@ module.exports = class FirebaseStorageService {
   }
 
   async delete(url) {
-    return new Error('not implemented');
+    const response = await this.storage.bucket().deleteFiles({prefix: url});
+    return `Success deleted: ${url}`;
   }
 };

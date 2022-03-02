@@ -1,22 +1,34 @@
-const fs = require('fs');
+const {createWriteStream} = require('fs');
+const {unlink} = require('fs/promises');
 const path = require('path');
-const IStorageServices = require('../interfaces/IStorageServices');
 
-module.exports = class LocalStorageServices extends IStorageServices {
+module.exports = class LocalStorageServices {
   constructor() {
-    super();
-    this.STORAGE_PATH = '../../../storage/public';
+    this.STORAGE_PATH = '../../../../storage/temp';
   }
 
-  async upload(url, file) {
-    fs.writeFile(path.join(__dirname, this.STORAGE_PATH, url));
+  async upload(url, fileStream) {
+    const targetUrl = path.join(__dirname, this.STORAGE_PATH, url);
+    const writeStream = createWriteStream(targetUrl);
+    const streamPromise = new Promise((resolve, reject) => {
+      writeStream.on('error', (error) => reject(error));
+      writeStream.on('finish', () => {
+        writeStream.close();
+        resolve(targetUrl);
+      });
+      fileStream.pipe(writeStream);
+    });
+
+    return streamPromise;
   }
 
   async getDownloadLink(url) {
-    throw new Error('not implemented');
+    return path.join(__dirname, this.STORAGE_PATH, url);
   }
 
   async delete(url) {
-    throw new Error('not implemented');
+    const targetUrl = path.join(__dirname, this.STORAGE_PATH, url);
+    await unlink(targetUrl);
+    return `Success deleted: ${url}`;
   }
 };
