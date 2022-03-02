@@ -3,7 +3,6 @@ const FirebaseServices = require('../services/FirebaseServices');
 const FirebaseQuestionRepository = require('../repositories/QuestionRepositoryFirebase');
 
 const {serviceAccount} = require('./service-account');
-console.log(serviceAccount);
 const storageBucket = process.env.SERVICE_ACCOUNT_STORAGE_BUCKET;
 const {db, storage} = new FirebaseServices(serviceAccount, storageBucket);
 

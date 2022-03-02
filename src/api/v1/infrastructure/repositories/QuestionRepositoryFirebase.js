@@ -1,7 +1,7 @@
 const QuestionRepository = require('../../domain/repositories/QuestionRepository');
 const Question = require('../../domain/entities/Question');
 
-module.exports = class FirebaseQuestionRepository extends QuestionRepository {
+module.exports = class QuestionRepositoryFirebase extends QuestionRepository {
   constructor(db, storage) {
     super();
     this.db = db;
@@ -20,7 +20,8 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
       questionData = {question, answer, choices, topic};
     }
 
-    return this.db.collection(this.collection).add(questionData);
+    const result = await this.db.collection(this.collection).add(questionData);
+    return result.id;
   }
 
   async update(questionInstance, file) {
@@ -30,6 +31,9 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
     if (img) {
       questionData = {question, answer, choices, img, topic};
       const snapshot = await this.db.collection(this.collection).doc(id).get();
+      if (!snapshot.exists) {
+        throw new Error('Not Found');
+      }
       const oldImg = snapshot.get('img');
       const promises = [
         this.storage.delete(oldImg),
@@ -40,27 +44,34 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
       questionData = {question, answer, choices, topic};
     }
 
-    return this.db.collection(this.collection).doc(id).set(questionData, {merge: true});
+    const {writeTime} = await this.db.collection(this.collection).doc(id).update(questionData);
+    return writeTime.toDate();
   }
 
   async delete(questionId) {
-    return this.db.collection(this.collection).doc(questionId).delete();
+    const docRef = this.db.collection(this.collection).doc(questionId);
+    const docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) {
+      throw new Error('Not Found');
+    }
+
+    const deleteTime = await this.db.runTransaction(async (transaction) => {
+      await transaction.delete(docRef);
+      const {img} = docSnapshot.data();
+      img ? await this.storage.delete(img) : null;
+      return new Date().toJSON();
+    });
+
+    return deleteTime;
   }
 
   async getById(questionId) {
     const snapshot = await this.db.collection(this.collection).doc(questionId).get();
     if (snapshot.exists) {
-      const doc = {id: snapshot.id, ...snapshot.data()};
-      const imgUrl = await this.storage.getDownloadLink(doc.img);
-
-      return new Question(
-          doc.id,
-          doc.question,
-          doc.answer,
-          doc.choices,
-          imgUrl,
-          doc.topic,
-      );
+      const {id, question, answer, choices, img, topic} = {id: snapshot.id, ...snapshot.data()};
+      const imgUrl = await this.storage.getDownloadLink(img);
+      return new Question(id, question, answer, choices, imgUrl, topic);
     } else {
       throw new Error('Not Found');
     }
@@ -78,7 +89,7 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
 
     const promises = docs.map((doc) => this.storage.getDownloadLink(doc.img));
     const settled = await Promise.allSettled(promises);
-    const questions = docs.map((doc, index) => {
+    const questions = docs.map(({id, question, answer, choices, topic}, index) => {
       let imgUrl;
 
       if (settled[index].status === 'fulfilled') {
@@ -87,14 +98,7 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
         imgUrl = null;
       }
 
-      return new Question(
-          doc.id,
-          doc.question,
-          doc.answer,
-          doc.choices,
-          imgUrl,
-          doc.topic,
-      );
+      return new Question(id, question, answer, choices, imgUrl, topic);
     });
 
     return questions;
@@ -110,7 +114,7 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
 
     const promises = docs.map((doc) => this.storage.getDownloadLink(doc.img));
     const settled = await Promise.allSettled(promises);
-    const questions = docs.map((doc, index) => {
+    const questions = docs.map(({id, question, answer, choices, topic}, index) => {
       let imgUrl;
 
       if (settled[index].status === 'fulfilled') {
@@ -119,14 +123,7 @@ module.exports = class FirebaseQuestionRepository extends QuestionRepository {
         imgUrl = null;
       }
 
-      return new Question(
-          doc.id,
-          doc.question,
-          doc.answer,
-          doc.choices,
-          imgUrl,
-          doc.topic,
-      );
+      return new Question(id, question, answer, choices, imgUrl, topic);
     });
 
     return questions;
