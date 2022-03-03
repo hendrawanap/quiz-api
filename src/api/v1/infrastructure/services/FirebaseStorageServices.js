@@ -29,6 +29,9 @@ module.exports = class FirebaseStorageService {
   }
 
   async delete(url) {
+    if (!url) {
+      throw new Error(`URL can't be null`);
+    }
     const response = await this.storage.bucket().deleteFiles({prefix: url});
     return `Success deleted: ${url}`;
   }
