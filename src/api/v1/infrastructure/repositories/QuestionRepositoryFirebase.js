@@ -35,10 +35,8 @@ module.exports = class QuestionRepositoryFirebase extends QuestionRepository {
         throw new Error('Not Found');
       }
       const oldImg = snapshot.get('img');
-      const promises = [
-        this.storage.delete(oldImg),
-        this.storage.upload(img, file),
-      ];
+      const promises = [this.storage.upload(img, file)];
+      oldImg ? promises.push(this.storage.delete(oldImg)) : null;
       await Promise.all(promises);
     } else {
       questionData = {question, answer, choices, topic};
