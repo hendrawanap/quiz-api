@@ -70,7 +70,12 @@ module.exports = class QuestionRepositoryFirebase extends QuestionRepository {
     const snapshot = await this.db.collection(this.collection).doc(questionId).get();
     if (snapshot.exists) {
       const {id, question, answer, choices, img, topic} = {id: snapshot.id, ...snapshot.data()};
-      const imgUrl = await this.storage.getDownloadLink(img);
+      let imgUrl;
+      try {
+        imgUrl = await this.storage.getDownloadLink(img);
+      } catch (error) {
+        imgUrl = null;
+      }
       return new Question(id, question, answer, choices, imgUrl, topic);
     } else {
       throw new Error('Not Found');
