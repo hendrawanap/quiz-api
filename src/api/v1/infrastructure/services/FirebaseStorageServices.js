@@ -13,6 +13,9 @@ module.exports = class FirebaseStorageService {
 
   async getDownloadLink(url) {
     let signedUrl = null;
+    if (!url) {
+      throw new Error(`URL can't be null`);
+    }
     const files = await this.storage.bucket().getFiles({prefix: url});
 
     if (files.length !== 0) {
