@@ -18,6 +18,9 @@ module.exports = (parentPath) => ({
         method: 'GET',
         path: parentPath + BASE_PATH,
         handler: index,
+        options: {
+          auth: 'firebase-auth-token',
+        },
       },
       {
         method: 'GET',
