@@ -7,8 +7,9 @@ const {
 } = require('../controllers/QuestionController');
 
 const BASE_PATH = '/questions';
+const authStrategy = process.env.NODE_ENV === 'development' ? null : 'firebase-auth-token';
 
-module.exports = (parentPath) => ({
+module.exports = (parentPath = '') => ({
   name: 'questions',
   version: '1.0.0',
   register: (server, options) => {
@@ -18,19 +19,23 @@ module.exports = (parentPath) => ({
         path: parentPath + BASE_PATH,
         handler: index,
         options: {
-          auth: 'firebase-auth-token',
+          auth: authStrategy,
         },
       },
       {
         method: 'GET',
         path: `${parentPath + BASE_PATH}/{id}`,
         handler: show,
+        options: {
+          auth: authStrategy,
+        },
       },
       {
         method: 'POST',
         path: parentPath + BASE_PATH,
         handler: store,
         options: {
+          auth: authStrategy,
           payload: {
             output: 'stream',
             multipart: true,
@@ -44,6 +49,7 @@ module.exports = (parentPath) => ({
         handler: update,
         options: {
           payload: {
+            auth: authStrategy,
             output: 'stream',
             multipart: true,
             maxBytes: 20_000_000,
@@ -54,6 +60,9 @@ module.exports = (parentPath) => ({
         method: 'DELETE',
         path: `${parentPath + BASE_PATH}/{id}`,
         handler: destroy,
+        options: {
+          auth: authStrategy,
+        },
       },
     ]);
   },
