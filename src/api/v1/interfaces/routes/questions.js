@@ -48,8 +48,8 @@ module.exports = (parentPath = '') => ({
         path: `${parentPath + BASE_PATH}/{id}`,
         handler: update,
         options: {
+          auth: authStrategy,
           payload: {
-            auth: authStrategy,
             output: 'stream',
             multipart: true,
             maxBytes: 20_000_000,
