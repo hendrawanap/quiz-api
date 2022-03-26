@@ -1,7 +1,8 @@
 require('dotenv').config();
 const hapi = require('@hapi/hapi');
 const routes = require('../../interfaces/routes/index');
-const firebaseAuth = require('../server/auth/index');
+const firebaseAuth = require('./auth/index');
+const dependencies = require('../config/dependencies');
 
 const init = async () => {
   const server = hapi.server({
@@ -17,10 +18,10 @@ const init = async () => {
   await server.register(firebaseAuth);
   await server.register(routes);
 
-  server.app.dependencies = require('../config/dependencies');
+  server.app.dependencies = dependencies;
 
   await server.start();
   console.log(`Running on ${server.info.uri}`);
 };
 
-module.exports = {init};
+module.exports = { init };

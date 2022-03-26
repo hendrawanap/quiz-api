@@ -10,7 +10,7 @@ describe('QuestionRepositoryFirebase', () => {
     it('should return empty array if db is empty', async () => {
       db = {
         collection: (collectionId) => ({
-          get: async () => ({empty: true}),
+          get: async () => ({ empty: true }),
         }),
       };
       storage = {
@@ -59,9 +59,7 @@ describe('QuestionRepositoryFirebase', () => {
         collection: (collectionId) => ({
           get: async () => ({
             empty: false,
-            forEach: (callback) => {
-              return docs.forEach((doc) => callback(doc));
-            },
+            forEach: (callback) => docs.forEach((doc) => callback(doc)),
           }),
         }),
       };
@@ -69,9 +67,9 @@ describe('QuestionRepositoryFirebase', () => {
         getDownloadLink: (url) => dowloadLinkMock(),
       };
       dowloadLinkMock
-          .mockReturnValueOnce(new Promise((resolve, reject) => resolve(['/foods/a.png'])))
-          .mockReturnValueOnce(new Promise((resolve, reject) => resolve(['/foods/b.jpg'])))
-          .mockReturnValue(new Promise((resolve, reject) => reject(new Error('failed'))));
+        .mockReturnValueOnce(new Promise((resolve, reject) => resolve(['/foods/a.png'])))
+        .mockReturnValueOnce(new Promise((resolve, reject) => resolve(['/foods/b.jpg'])))
+        .mockReturnValue(new Promise((resolve, reject) => reject(new Error('failed'))));
       repository = new QuestionRepositoryFirebase(db, storage);
       const result = await repository.getAll();
       const expected = [];

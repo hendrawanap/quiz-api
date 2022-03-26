@@ -1,4 +1,3 @@
-const Joi = require('joi');
 const {
   index,
   show,
@@ -37,13 +36,6 @@ module.exports = (parentPath) => ({
             multipart: true,
             maxBytes: 20_000_000,
           },
-          // validate: {
-          //   payload: Joi.object({
-          //     question: Joi.string().required(),
-          //     answer: Joi.string().required(),
-          //     topic: Joi.string().required(),
-          //   }),
-          // },
         },
       },
       {

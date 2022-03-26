@@ -1,5 +1,5 @@
-const {createWriteStream} = require('fs');
-const {unlink} = require('fs/promises');
+const { createWriteStream } = require('fs');
+const { unlink } = require('fs/promises');
 const path = require('path');
 
 module.exports = class LocalStorageServices {

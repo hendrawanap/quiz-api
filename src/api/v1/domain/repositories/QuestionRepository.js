@@ -1,6 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
 module.exports = class QuestionRepository {
-  constructor() { }
-
   async add(questionInstance, file) {
     throw new Error('not implemented');
   }

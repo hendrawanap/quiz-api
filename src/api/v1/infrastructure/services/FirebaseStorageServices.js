@@ -6,7 +6,7 @@ module.exports = class FirebaseStorageService {
 
   async upload(url, fileStream) {
     const localUrl = await this.localStorage.upload(url, fileStream);
-    const response = await this.storage.bucket().upload(localUrl, {destination: url});
+    const response = await this.storage.bucket().upload(localUrl, { destination: url });
     this.localStorage.delete(url);
     return response[1];
   }
@@ -14,9 +14,9 @@ module.exports = class FirebaseStorageService {
   async getDownloadLink(url) {
     let signedUrl = null;
     if (!url) {
-      throw new Error(`URL can't be null`);
+      throw new Error('URL can\'t be null');
     }
-    const files = await this.storage.bucket().getFiles({prefix: url});
+    const files = await this.storage.bucket().getFiles({ prefix: url });
 
     if (files.length !== 0) {
       signedUrl = await files[0][0].getSignedUrl({
@@ -30,9 +30,9 @@ module.exports = class FirebaseStorageService {
 
   async delete(url) {
     if (!url) {
-      throw new Error(`URL can't be null`);
+      throw new Error('URL can\'t be null');
     }
-    const response = await this.storage.bucket().deleteFiles({prefix: url});
+    await this.storage.bucket().deleteFiles({ prefix: url });
     return `Success deleted: ${url}`;
   }
 };
